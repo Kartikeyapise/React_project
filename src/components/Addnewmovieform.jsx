@@ -1,80 +1,100 @@
-import React, { useState } from "react";
+import React, { Component } from "react";
 import Inputform from "./Inputform";
+import { Link } from "react-router-dom";
+import { getMovie, saveMovie } from "../services/fakeMovieService";
 
-const Addnewmovieform = () => {
-  let [state, setState] = useState({
-    attributes: { title: "", genre: "", numberInStock: "", rate: "" },
-    errors: { title: "", genre: "", numberInStock: "", rate: "" },
-  });
-  return (
-    <>
-      <div>
-        <h1>Movie form</h1>
-        <form>
-          <Inputform
-            label="title"
-            name="title"
-            value={state.attributes.username}
-            handleOnchange={handleOnchange}
-            type="text"
-            error={state.errors.username}
-          ></Inputform>
-          <Inputform
-            label="genre"
-            name="genre"
-            value={state.attributes.genre}
-            handleOnchange={handleOnchange}
-            type="text"
-            error={state.errors.genre}
-          ></Inputform>
-          <Inputform
-            label="numberInStock"
-            name="numberInStock"
-            value={state.attributes.numberInStock}
-            handleOnchange={handleOnchange}
-            type="text"
-            error={state.errors.numberInStock}
-          ></Inputform>
-          <Inputform
-            label="rate"
-            name="rate"
-            value={state.attributes.rate}
-            handleOnchange={handleOnchange}
-            type="text"
-            error={state.errors.rate}
-          ></Inputform>
-          <button
-            type="submit"
-            className="btn btn-primary mt-3"
-            onClick={handleSubmit}
-          >
-            save
-          </button>
-        </form>
-      </div>
-    </>
-  );
+class Addnewmovieform extends Component {
+  state = {
+    attributes: {
+      name: "",
+      genre: "",
+      numberInStock: "",
+      dailyRentalRate: "",
+    },
+    errors: { name: "", genre: "", numberInStock: "", dailyRentalRate: "" },
+  };
 
-  function validate() {
+  validate = () => {
     const errors = {};
     return errors;
-  }
-  function validateOneInput(name) {
+  };
+  validateOneInput = (name) => {
     return "";
-  }
-  function handleSubmit(e) {
+  };
+  handleSubmit = (e) => {
     e.preventDefault();
-    state.errors = validate();
-    setState({ ...state });
-  }
-  function handleOnchange(e) {
+    this.state.errors = this.validate();
+    console.log("in handlesubmit");
+    this.setState({ ...this.state });
+    // saveMovie({
+    //   _id: this.genre + this.name,
+    //   title: this.name,
+    //   genre: { _id: this.genre + this.name, name: this.genre },
+    //   numberInStock: this.numberInStock,
+    //   dailyRentalRate: this.dailyRentalRate,
+    // });
+    this.props.history.push("/movies");
+  };
+  handleOnchange = (e) => {
     let name = e.currentTarget.name;
     let value = e.currentTarget.value;
-    console.log("in handleonChange", name, value);
-    state.attributes[name] = value;
-    state.errors[name] = validateOneInput(name);
-    setState({ ...state });
+    this.state.attributes[name] = value;
+    this.state.errors[name] = this.validateOneInput(name);
+    console.log(this.state);
+    this.setState({ ...this.state });
+  };
+  render() {
+    return (
+      <>
+        <div>
+          <h1>Movie form</h1>
+          <form>
+            <Inputform
+              label="name"
+              name="name"
+              value={this.state.attributes.username}
+              handleOnchange={this.handleOnchange}
+              type="text"
+              error={this.state.errors.username}
+            ></Inputform>
+            <Inputform
+              label="genre"
+              name="genre"
+              value={this.state.attributes.genre}
+              handleOnchange={this.handleOnchange}
+              type="text"
+              error={this.state.errors.genre}
+            ></Inputform>
+            <Inputform
+              label="numberInStock"
+              name="numberInStock"
+              value={this.state.attributes.numberInStock}
+              handleOnchange={this.handleOnchange}
+              type="text"
+              error={this.state.errors.numberInStock}
+            ></Inputform>
+            <Inputform
+              label="dailyRentalRate"
+              name="dailyRentalRate"
+              value={this.state.attributes.dailyRentalRate}
+              handleOnchange={this.handleOnchange}
+              type="text"
+              error={this.state.errors.dailyRentalRate}
+            ></Inputform>
+            <Link to="/movies">
+              <button
+                type="submit"
+                className="btn btn-primary mt-3"
+                onClick={this.handleSubmit}
+              >
+                save
+              </button>
+            </Link>
+          </form>
+        </div>
+      </>
+    );
   }
-};
+}
 
 export default Addnewmovieform;

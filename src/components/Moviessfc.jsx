@@ -1,39 +1,66 @@
-import React, { Component } from "react";
+import React from "react";
+import { useState } from "react";
 import { getMovies } from "../services/fakeMovieService.js";
 import Pagination from "./Pagination.jsx";
 import Genres from "./Genres.jsx";
 import MoviesTable from "./MoviesTable.jsx";
+import Searchbox from "./Searchbox";
 
-class Movies extends Component {
-  state = {
+function Movies() {
+  let [state, setState] = useState({
     all_movies: getMovies(),
     list_movies: getMovies(),
     pageSize: 5,
     pageNo: 1,
     currentGenre: "All Genres",
     sortColoum: undefined,
-    numberOfPages: Math.ceil(getMovies().length / 5),
-  };
-  // constructor(props) {
-  //   super(props);
-  // }
+  });
+  state.numberOfPages = Math.ceil(state.list_movies.length / state.pageSize);
 
-  handleDelete = (movie) => {
+  if (state.all_movies.length === 0)
+    return <p>There are no movies in the database.</p>;
+  return (
+    <>
+      <div className="row">
+        <div className="col-3">
+          <Genres
+            handleGenre={handleGenre}
+            currentGenre={state.currentGenre}
+          ></Genres>
+        </div>
+        <div className="col">
+          <MoviesTable
+            state={state}
+            handleDelete={handleDelete}
+            handleLike={handleLike}
+            listMoviesOnPage={showMoviesOnPage(state.pageNo)}
+            handleSort={handleSort}
+            sortColoum={state.sortColoum}
+          ></MoviesTable>
+          <Pagination
+            numberOfPages={state.numberOfPages}
+            pageSize={state.pageSize}
+            pageNo={state.pageNo}
+            handlePagination={handlePagination}
+          ></Pagination>
+        </div>
+      </div>
+    </>
+  );
+
+  function handleDelete(movie) {
     // console.log(movie);
-    let state = { ...this.state };
     state.list_movies = state.list_movies.filter((m) => {
       return m._id !== movie._id;
     });
     state.all_movies = state.all_movies.filter((m) => {
       return m._id !== movie._id;
     });
-    this.setState({ ...state });
-  };
+    setState({ ...state });
+  }
 
-  handleLike = (movie) => {
-    let state = { ...this.state };
-    console.log(this.state);
-    let index = this.state.list_movies.indexOf(movie);
+  function handleLike(movie) {
+    let index = state.list_movies.indexOf(movie);
     if (
       state.list_movies[index].Liked == undefined ||
       state.list_movies[index].Liked == false
@@ -41,11 +68,10 @@ class Movies extends Component {
       state.list_movies[index].Liked = true;
     else state.list_movies[index].Liked = false;
     // console.log(movie);
-    this.setState({ ...state });
-  };
+    setState({ ...state });
+  }
 
-  showMoviesOnPage = (pageNo) => {
-    let state = { ...this.state };
+  function showMoviesOnPage(pageNo) {
     let marr = [];
     let s = state.pageSize * (pageNo - 1);
     let e = state.pageSize * pageNo;
@@ -55,8 +81,8 @@ class Movies extends Component {
       marr.push(state.list_movies[i]);
     }
     return marr;
-  };
-  handleSort = (param) => {
+  }
+  function handleSort(param) {
     function sortByGenre(a, b) {
       if (a.genre.name < b.genre.name) {
         return -1;
@@ -75,22 +101,17 @@ class Movies extends Component {
       }
       return 0;
     }
-    let state = { ...this.state };
-
     state.sortColoum = param;
     if (param === "Jenre") state.list_movies.sort(sortByGenre);
     else state.list_movies.sort(sortByparam);
-    this.setState({ ...state });
-  };
-  handlePagination = (pn) => {
-    let state = { ...this.state };
+    setState({ ...state });
+  }
+  function handlePagination(pn) {
     state.pageNo = pn;
-    this.setState({ ...state });
-  };
+    setState({ ...state });
+  }
 
-  handleGenre = (genre) => {
-    let state = { ...this.state };
-
+  function handleGenre(genre) {
     state.currentGenre = genre;
     console.log(genre);
 
@@ -103,52 +124,20 @@ class Movies extends Component {
       });
     }
 
-    this.setState({ ...state });
-  };
+    setState({ ...state });
+  }
 
-  addMovie = (m) => {
-    this.state.all_movies.push({
+  function addmovie(m) {
+    state.all_movies.push({
       _id: "movie_" + m.title,
       title: m.title,
       genre: { _id: "genre_" + m.genre, name: m.genre },
       numberInStock: m.numberInStock,
       dailyRentalRate: m.dailyRentalRate,
     });
-    this.setState({ ...this.state });
-  };
+  }
 
-  render = () => {
-    if (this.state.all_movies.length === 0)
-      return <p>There are no movies in the database.</p>;
-    return (
-      <>
-        <div className="row">
-          <div className="col-3">
-            <Genres
-              handleGenre={this.handleGenre}
-              currentGenre={this.state.currentGenre}
-            ></Genres>
-          </div>
-          <div className="col">
-            <MoviesTable
-              state={this.state}
-              handleDelete={this.handleDelete}
-              handleLike={this.handleLike}
-              listMoviesOnPage={this.showMoviesOnPage(this.state.pageNo)}
-              handleSort={this.handleSort}
-              sortColoum={this.state.sortColoum}
-            ></MoviesTable>
-            <Pagination
-              numberOfPages={this.state.numberOfPages}
-              pageSize={this.state.pageSize}
-              pageNo={this.state.pageNo}
-              handlePagination={this.handlePagination}
-            ></Pagination>
-          </div>
-        </div>
-      </>
-    );
-  };
+  // func movies end
 }
 
 export default Movies;
